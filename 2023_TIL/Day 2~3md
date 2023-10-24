@@ -141,6 +141,7 @@ WHERE @HOUR < 23
 
 [참고, \[프로그래머스\] 입양 시각 구하기(1), (2) (GROUP BY, HAVING, SET)](https://chanhuiseok.github.io/posts/db-6/)
 
+[프로그래머스 특정 기간동안 대여 가능한 자동차들의 대여비용 구하기](https://school.programmers.co.kr/learn/courses/30/lessons/157339)
 
 
 - 첫번째 풀이
@@ -198,3 +199,20 @@ HAVING  FEE >= 500000 AND FEE < 2000000
 ```
 [참고풀이](https://kkw-da.tistory.com/entry/SQL-%ED%8A%B9%EC%A0%95-%EA%B8%B0%EA%B0%84%EB%8F%99%EC%95%88-%EB%8C%80%EC%97%AC-%EA%B0%80%EB%8A%A5%ED%95%9C-%EC%9E%90%EB%8F%99%EC%B0%A8%EB%93%A4%EC%9D%98-%EB%8C%80%EC%97%AC%EB%B9%84%EC%9A%A9-%EA%B5%AC%ED%95%98%EA%B8%B0%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%A8%B8%EC%8A%A4MySQLLevel-4)
 
+
+[프로그래머스 5월 식품들의 총매출 조회하기](https://school.programmers.co.kr/learn/courses/30/lessons/131117)
+
+```sql
+SELECT O.PRODUCT_ID 
+      ,P.PRODUCT_NAME
+      ,P.PRICE*SUM(O.AMOUNT) AS TOTAL_SALES
+FROM FOOD_PRODUCT P
+JOIN FOOD_ORDER O ON P.PRODUCT_ID=O.PRODUCT_ID
+WHERE YEAR(PRODUCE_DATE)=2022 AND MONTH(PRODUCE_DATE)=5
+GROUP BY O.PRODUCT_ID, P.PRODUCT_NAME
+ORDER BY TOTAL_SALES DESC, O.PRODUCT_ID
+-- 테이블에서 생산일자가 2022년 5월
+-- 식품들의 식품 ID, 식품 이름, 총매출
+-- 결과는 총매출을 기준으로 내림차순 정렬해주시고 총매출이 같다면 식품 ID를 기준으로 오름차순 정렬
+```
+- Amount는 SUM 해줘야 함 ! 
