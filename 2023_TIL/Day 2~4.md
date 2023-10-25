@@ -216,3 +216,21 @@ ORDER BY TOTAL_SALES DESC, O.PRODUCT_ID
 -- 결과는 총매출을 기준으로 내림차순 정렬해주시고 총매출이 같다면 식품 ID를 기준으로 오름차순 정렬
 ```
 - Amount는 SUM 해줘야 함 ! 
+
+조건에 맞는 도서와 저자 리스트 출력하기
+```sql
+SELECT B.BOOK_ID
+      ,A.AUTHOR_NAME
+      ,DATE_FORMAT(B.PUBLISHED_DATE,'%Y-%m-%d') AS PUBLISHED_DATE 
+FROM BOOK B
+JOIN AUTHOR A ON A.AUTHOR_ID=B.AUTHOR_ID
+WHERE B.CATEGORY='경제'
+ORDER BY B.PUBLISHED_DATE 
+```
+
+
+
+
+
+
+
