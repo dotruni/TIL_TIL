@@ -141,7 +141,7 @@ WHERE @HOUR < 23
 
 [참고, \[프로그래머스\] 입양 시각 구하기(1), (2) (GROUP BY, HAVING, SET)](https://chanhuiseok.github.io/posts/db-6/)
 
-[프로그래머스 특정 기간동안 대여 가능한 자동차들의 대여비용 구하기](https://school.programmers.co.kr/learn/courses/30/lessons/157339)
+### [프로그래머스 특정 기간동안 대여 가능한 자동차들의 대여비용 구하기](https://school.programmers.co.kr/learn/courses/30/lessons/157339)
 
 
 - 첫번째 풀이
@@ -200,7 +200,7 @@ HAVING  FEE >= 500000 AND FEE < 2000000
 [참고풀이](https://kkw-da.tistory.com/entry/SQL-%ED%8A%B9%EC%A0%95-%EA%B8%B0%EA%B0%84%EB%8F%99%EC%95%88-%EB%8C%80%EC%97%AC-%EA%B0%80%EB%8A%A5%ED%95%9C-%EC%9E%90%EB%8F%99%EC%B0%A8%EB%93%A4%EC%9D%98-%EB%8C%80%EC%97%AC%EB%B9%84%EC%9A%A9-%EA%B5%AC%ED%95%98%EA%B8%B0%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%A8%B8%EC%8A%A4MySQLLevel-4)
 
 
-[프로그래머스 5월 식품들의 총매출 조회하기](https://school.programmers.co.kr/learn/courses/30/lessons/131117)
+### [프로그래머스 5월 식품들의 총매출 조회하기](https://school.programmers.co.kr/learn/courses/30/lessons/131117)
 
 ```sql
 SELECT O.PRODUCT_ID 
@@ -228,9 +228,59 @@ WHERE B.CATEGORY='경제'
 ORDER BY B.PUBLISHED_DATE 
 ```
 
+### [프로그래머스 그룹별 조건에 맞는 식당 목록 출력하기](https://school.programmers.co.kr/learn/courses/30/lessons/131124)
 
+```sql
+SELECT P.MEMBER_NAME
+      ,R.REVIEW_TEXT
+      ,DATE_FORMAT(R.REVIEW_DATE,'%Y-%m-%d') AS REVIEW_DATE
+FROM MEMBER_PROFILE P 
+JOIN REST_REVIEW R ON P.MEMBER_ID=R.MEMBER_ID
+WHERE P.MEMBER_NAME = ( SELECT P.MEMBER_NAME
+                        FROM MEMBER_PROFILE P 
+                        JOIN REST_REVIEW R ON P.MEMBER_ID=R.MEMBER_ID
+                        GROUP BY P.MEMBER_NAME
+                        ORDER BY COUNT(REVIEW_ID) DESC  
+                        LIMIT 1           )
+ORDER BY 3,2
 
+```
+- ORDER BY에 COUNT 넣어서 MAX 값 뽑기!
+- DATE_fORMAT 값 잘 맞추기! 
 
+### [상품 별 오프라인 매출 구하기](https://school.programmers.co.kr/learn/courses/30/lessons/131533)
 
+```sql
+SELECT P.PRODUCT_CODE 
+      ,SUM(S.SALES_AMOUNT)*P.PRICE AS SALES
+FROM PRODUCT P 
+JOIN OFFLINE_SALE S ON P.PRODUCT_ID=S.PRODUCT_ID
+GROUP BY 1 
+ORDER BY 2 DESC,1
+```
+
+- 쉬웠다..!
+
+### [상품을 구매한 회원 비율 구하기](https://school.programmers.co.kr/learn/courses/30/lessons/131534)
+```sql
+WITH usercnt AS (
+                SELECT COUNT(DISTINCT USER_ID) AS cnt
+                FROM USER_INFO
+                WHERE YEAR(JOINED)='2021'
+)
+
+SELECT YEAR(S.SALES_DATE) AS YEAR
+      ,MONTH(S.SALES_DATE) AS MONTH
+      ,COUNT(DISTINCT S.USER_ID) AS PUCHASED_USERS
+      ,ROUND(COUNT(DISTINCT S.USER_ID)/usercnt.cnt,1) AS PUCHASED_RATIO
+FROM USER_INFO U
+JOIN ONLINE_SALE S ON U.USER_ID=S.USER_ID
+JOIN usercnt
+WHERE YEAR(JOINED)='2021' 
+GROUP BY 1,2
+ORDER BY 1,2
+-- 2021년에 가입한 전체 회원 중 
+-- 년,월별로
+```
 
 
