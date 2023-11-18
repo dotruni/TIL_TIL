@@ -1,0 +1,20 @@
+
+### BAD
+```sql
+SELECT DISTINCT city 
+FROM STATION
+WHERE city LIKE '%i' 
+OR city LIKE '%e' 
+OR city LIKE '%o' 
+OR city LIKE '%u' 
+OR city LIKE '%a'
+```
+-- TOO LONG 
+
+### GOOD
+```sql
+SELECT DISTINCT city 
+FROM STATION
+WHERE RIGHT(city,1) IN ('a','e','i','o','u') 
+```
+-- SHORT, EFFECTIVE 
