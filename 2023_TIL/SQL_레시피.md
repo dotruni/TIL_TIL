@@ -57,3 +57,86 @@ GROUP BY dt
 ORDER BY dt ;
 
 ```
+
+### 행을 열로 반환하기 
+```sql
+SELECT dt 
+      ,MAX(CASE WHEN indicator = 'impressions' THEN val END) AS impressions
+      ,MAX(CASE WHEN indicator = 'sessions' THEN val END) AS sessions
+      ,MAX(CASE WHEN indicator = 'users' THEN val END) AS users     
+FROM daily_kpi
+GROUP BY dt
+ORDER BY dt; 
+```
+
+월별 매출과 작대비를 계산하는 쿼리 
+WITH daily_purchase AS ( 
+  SELECT dt
+        ,substr(dt,1,4) AS year
+        ,substr(dt,6,2) AS month
+        ,substr(dt,9,2) AS day
+        ,SUM(purchase_amount) AS purchase_amount
+        ,COUNT(order_id) AS orders
+  FROM purchase_log
+  GROUP BY dt 
+)
+
+SELECT month
+      ,SUM(CASE WHEN year ='2014' THEN purchase_amount END) AS amount_2014
+      ,SUM(CASE WHEN year ='2015' THEN purchase_amount END) AS amount_2015
+      , SUM(CASE WHEN year = '2015' THEN purchase_amount END) * 100.0 
+      / SUM(CASE year WHEN '2014' THEN purchase_amount END) 
+      AS rate
+FROM daily_purchase
+GROUP BY month
+ORDER BY month
+
+
+### Z 차트로 업적의 추이 확인하기 
+- Z차트는 월별매출, 매출 누계, 이동 년계 라는 3가지 지표로 구성됩니다. 
+https://blog.naver.com/socialmedia/220194062598
+```sql
+WITH daily_purchase AS ( 
+  SELECT dt
+        ,substr(dt,1,4) AS year
+        ,substr(dt,6,2) AS month
+        ,substr(dt,9,2) AS day
+        ,SUM(purchase_amount) AS purchase_amount
+        ,COUNT(order_id) AS orders
+  FROM purchase_log
+  GROUP BY dt 
+  
+), monthly_amount AS (
+  
+  --  월별 매출 집계하기   
+  SELECT year
+        ,month
+  		,SUM(purchase_amount) AS amount
+  FROM daily_purchase
+  GROUP BY year,month 
+  
+),calc_index AS (
+  SELECT 
+  	year
+   ,month
+   ,amount
+   -- 2015년의 누계 매출 집계하기 
+  ,SUM(CASE WHEN year = '2015' THEN amount END)
+   OVER(ORDER BY year,month ROWS UNBOUNDED PRECEDING)
+   AS agg_amount
+ -- 당월부터 11개월 이전까지의 매출 합계(이동 년계) 집계하기 
+  ,SUM(amount) OVER(ORDER BY year,month ROWS BETWEEN 11 PRECEDING AND CURRENT ROW)
+  AS year_avg_amount 
+  FROM monthly_amount
+  ORDER BY year,month 
+ )
+ 
+ ### 마지막으로 2015년의 데이터만 압축하기
+SELECT concat(year, '-' , month) AS yearandmonth
+      ,amount
+      ,agg_amount
+      ,year_avg_amount
+FROM calc_index
+WHERE year = '2015'
+ORDER BY yearandmonth
+``` 
